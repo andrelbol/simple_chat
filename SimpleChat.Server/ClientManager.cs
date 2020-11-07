@@ -24,10 +24,11 @@ namespace SimpleChat.Server
         private void HandleClient(Client client)
         {
             Console.WriteLine("Client conectado.");
+            client.Nickname = RequestUsername(client);
 
             while (true)
             {
-                BroadcastMessage(client.Read());
+                BroadcastMessage($"{client.Nickname}> {client.Read()}");
             }
         }
 
@@ -37,6 +38,12 @@ namespace SimpleChat.Server
             {
                 client.Write(message);
             }
+        }
+
+        private string RequestUsername(Client client)
+        {
+            client.Write("Welcome to our chat server.Please provide a nickname:\n>");
+            return client.Read();
         }
     }
 }
