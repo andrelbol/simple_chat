@@ -17,13 +17,20 @@ namespace SimpleChat.Server
         }
 
         public void Write(string message)
-            => _stream.Write(Encoding.ASCII.GetBytes(message));
+            => _stream.Write(Encoding.ASCII.GetBytes($"{message}{Environment.NewLine}"));
 
         public string Read()
         {
-            var bytes = new Byte[256];
-            _stream.Read(bytes);
-            return Encoding.ASCII.GetString(bytes);
+            var bytes = new byte[1024];
+            string message = "";
+            while (string.IsNullOrEmpty(message))
+            {
+                _stream.Read(bytes);
+                message = Encoding.ASCII.GetString(bytes)
+                    .Replace(Environment.NewLine, "")
+                    .Replace("\0", "");
+            }
+            return message;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -17,7 +18,6 @@ namespace SimpleChat.Server
         public void AddClient(TcpClient tcpClient)
         {
             var client = new Client(tcpClient);
-            _clients.Add(client);
             Task.Run(() => HandleClient(client));
         }
 
@@ -25,11 +25,33 @@ namespace SimpleChat.Server
         {
             Console.WriteLine("Client conectado.");
             client.Nickname = RequestUsername(client);
+            _clients.Add(client);
 
             while (true)
             {
-                BroadcastMessage($"{client.Nickname}> {client.Read()}");
+                var message = client.Read();
+                if (message.StartsWith("/p"))
+                {
+                    SendPrivateMessage(client, message);
+                }
+                else
+                {
+                    BroadcastMessage($"{client.Nickname}> {message}");
+                }
             }
+        }
+        private string RequestUsername(Client client)
+        {
+            client.Write($"Welcome to our chat server.Please provide a nickname:{Environment.NewLine}>");
+            var nickname = client.Read();
+            while (_clients.Any(x => x.Nickname == nickname))
+            {
+                client.Write($"Sorry, the nickname {nickname} is already taken. " +
+                    $"Please choose a different one:{Environment.NewLine}>");
+                nickname = client.Read();
+            }
+            client.Write($"*** You are registered as {nickname}. Joining room.");
+            return nickname;
         }
 
         private void BroadcastMessage(string message)
@@ -40,10 +62,18 @@ namespace SimpleChat.Server
             }
         }
 
-        private string RequestUsername(Client client)
+        private void SendPrivateMessage(Client from, string message)
         {
-            client.Write("Welcome to our chat server.Please provide a nickname:\n>");
-            return client.Read();
+            var nickname = message.Split(' ')[1];
+            var to = _clients.FirstOrDefault(x => x.Nickname.Equals(nickname));
+            if (to == null)
+            {
+                from.Write($"User {nickname} not found on the chat room.");
+            }
+            else
+            {
+                to.Write($"{from.Nickname} says privately to {to.Nickname} : {message.Split(' ')[1]}");
+            }
         }
     }
 }
