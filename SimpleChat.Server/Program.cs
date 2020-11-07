@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SimpleChat.Server.CMD
+namespace SimpleChat.Server
 {
     class Program
     {
