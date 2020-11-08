@@ -23,11 +23,12 @@ namespace SimpleChat.Client
             Task.WaitAll(writing, reading);
             _stream.Close();
             _client.Close();
+            Console.WriteLine("Connection finished.");
         }
 
         private void StartWriting()
         {
-            while (true)
+            while (_stream.CanWrite)
             {
                 var message = $"{Console.ReadLine()}{Environment.NewLine}";
                 var byteMessage = Encoding.ASCII.GetBytes(message);
@@ -37,14 +38,14 @@ namespace SimpleChat.Client
 
         private void StartReading()
         {
-            while (true)
+            var byteMessage = new byte[1024];
+            while (_stream.Read(byteMessage) != 0)
             {
-                var byteMessage = new byte[1024];
-                _stream.Read(byteMessage);
                 var message = Encoding.ASCII.GetString(byteMessage)
                     .Replace(Environment.NewLine, "")
                     .Replace("\0", "");
                 Console.WriteLine(message);
+                byteMessage = new byte[1024];
             }
         }
     }

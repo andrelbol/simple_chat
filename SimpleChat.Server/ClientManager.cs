@@ -22,7 +22,7 @@ namespace SimpleChat.Server
 
         private void HandleClient(Client client)
         {
-            Console.WriteLine("Client conectado.");
+            Console.WriteLine("Client connected.");
             client.Nickname = RequestUsername(client);
             _clients.TryAdd(client.Nickname, client);
 
@@ -33,7 +33,7 @@ namespace SimpleChat.Server
                 {
                     SendPrivateMessage(client, message);
                 }
-                else if (message == "exit")
+                else if (message == "/exit")
                 {
                     client.Write($"{client.Nickname} is exiting the room");
                     CloseClient(client);
@@ -41,7 +41,7 @@ namespace SimpleChat.Server
                 }
                 else
                 {
-                    BroadcastMessage($"{client.Nickname}> {message}");
+                    BroadcastMessage($"{client.Nickname}: {message}");
                 }
             }
         }
