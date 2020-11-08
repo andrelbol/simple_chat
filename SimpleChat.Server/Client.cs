@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Text;
+using SimpleChat.Commons.Extensions;
 
 namespace SimpleChat.Server
 {
@@ -26,9 +27,7 @@ namespace SimpleChat.Server
             while (string.IsNullOrEmpty(message))
             {
                 _stream.Read(bytes);
-                message = Encoding.ASCII.GetString(bytes)
-                    .Replace(Environment.NewLine, "")
-                    .Replace("\0", "");
+                message = Encoding.ASCII.GetString(bytes).TrimNewLines();
             }
             return message;
         }

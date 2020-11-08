@@ -10,9 +10,9 @@ namespace SimpleChat.Server
             int port = GetPort();
             var server = new SimpleServer(host, port);
 
-            Console.WriteLine($"Servidor iniciado no endereço {host}:{port}.");
+            Console.WriteLine($"Server running on address {host}:{port}.");
             server.StartListening();
-
+            Console.WriteLine("Server finished.");
         }
 
         static int GetPort()

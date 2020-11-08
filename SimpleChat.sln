@@ -11,6 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{104A42
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleChat.Client", "SimpleChat.Client\SimpleChat.Client.csproj", "{D8D10825-ABE6-49F6-93C1-D6DE4C84E4B0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Commons", "Commons", "{8AC5970D-1D1F-4F99-895B-EC8DAE80AF99}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleChat.Commons", "SimpleChat.Commons\SimpleChat.Commons.csproj", "{4225E899-A1E1-46A7-AACE-4D240524D948}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +29,10 @@ Global
 		{D8D10825-ABE6-49F6-93C1-D6DE4C84E4B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8D10825-ABE6-49F6-93C1-D6DE4C84E4B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8D10825-ABE6-49F6-93C1-D6DE4C84E4B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4225E899-A1E1-46A7-AACE-4D240524D948}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4225E899-A1E1-46A7-AACE-4D240524D948}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4225E899-A1E1-46A7-AACE-4D240524D948}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4225E899-A1E1-46A7-AACE-4D240524D948}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +40,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{C2E49006-C9DF-4296-A6C9-F829DBF58823} = {8122C737-699F-4F96-9E78-C71DABE90096}
 		{D8D10825-ABE6-49F6-93C1-D6DE4C84E4B0} = {104A42C5-85F7-4584-8C07-AF84206107F8}
+		{4225E899-A1E1-46A7-AACE-4D240524D948} = {8AC5970D-1D1F-4F99-895B-EC8DAE80AF99}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A712D59B-7B78-418B-AE00-EE4A0F28D7A8}

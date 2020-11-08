@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using SimpleChat.Commons.Extensions;
 
 namespace SimpleChat.Client
 {
@@ -41,9 +42,7 @@ namespace SimpleChat.Client
             var byteMessage = new byte[1024];
             while (_stream.Read(byteMessage) != 0)
             {
-                var message = Encoding.ASCII.GetString(byteMessage)
-                    .Replace(Environment.NewLine, "")
-                    .Replace("\0", "");
+                var message = Encoding.ASCII.GetString(byteMessage).TrimNewLines();
                 Console.WriteLine(message);
                 byteMessage = new byte[1024];
             }
