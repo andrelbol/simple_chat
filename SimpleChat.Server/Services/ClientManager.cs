@@ -44,7 +44,7 @@ namespace SimpleChat.Server.Services
                 }
                 else if (message.StartsWith("/room")) // Change room message
                 {
-                    ChangeOrCreateRoom(client, message.Split(' ')[1]);
+                    ChangeOrCreateRoom(client, message);
                 }
                 else if (message == "/exit") // Exit message
                 {
@@ -88,6 +88,11 @@ namespace SimpleChat.Server.Services
 
         private void SendDirectMessage(Client clientFrom, string message)
         {
+            if (message.Split(' ').Length <= 2)
+            {
+                SendInvalidParametersMessage(clientFrom);
+                return;
+            }
             var command = message.Split(' ')[0];
             var nickname = message.Split(' ')[1];
             var roomClients = clientFrom.Room.Clients;
@@ -132,8 +137,14 @@ namespace SimpleChat.Server.Services
             BroadcastMessage(client, $"{client.Nickname} is exiting the chat. ");
         }
 
-        private void ChangeOrCreateRoom(Client client, string roomName)
+        private void ChangeOrCreateRoom(Client client, string message)
         {
+            if (message.Split(' ').Length != 2)
+            {
+                SendInvalidParametersMessage(client);
+                return;
+            }
+            string roomName = message.Split(' ')[1];
             if (_rooms.ContainsKey(roomName))
             {
                 ChangeRoom(client, roomName);
@@ -157,5 +168,8 @@ namespace SimpleChat.Server.Services
             _rooms.TryGetValue(roomName, out var room);
             room.AddClient(client);
         }
+
+        private void SendInvalidParametersMessage(Client client)
+            => client.Write("Invalid number of parameters. Consult /help to see usage.");
     }
 }
