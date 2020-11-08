@@ -32,5 +32,11 @@ namespace SimpleChat.Server
             }
             return message;
         }
+
+        public void Close()
+        {
+            _stream.Close();
+            _tcpClient.Close();
+        }
     }
 }

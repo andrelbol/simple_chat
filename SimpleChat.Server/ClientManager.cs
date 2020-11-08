@@ -8,11 +8,11 @@ namespace SimpleChat.Server
 {
     public class ClientManager
     {
-        private ConcurrentBag<Client> _clients;
+        private ConcurrentDictionary<string, Client> _clients;
 
         public ClientManager()
         {
-            _clients = new ConcurrentBag<Client>();
+            _clients = new ConcurrentDictionary<string, Client>();
         }
 
         public void AddClient(TcpClient tcpClient)
@@ -25,7 +25,7 @@ namespace SimpleChat.Server
         {
             Console.WriteLine("Client conectado.");
             client.Nickname = RequestUsername(client);
-            _clients.Add(client);
+            _clients.TryAdd(client.Nickname, client);
 
             while (true)
             {
@@ -33,6 +33,11 @@ namespace SimpleChat.Server
                 if (message.StartsWith("/p"))
                 {
                     SendPrivateMessage(client, message);
+                } else if  (message == "exit"){
+                    client.Write($"{client.Nickname} is exiting the room");
+                    client.Close();
+                    _clients.TryRemove(client.Nickname, out var _);
+                    break;
                 }
                 else
                 {
@@ -44,7 +49,7 @@ namespace SimpleChat.Server
         {
             client.Write($"Welcome to our chat server.Please provide a nickname:{Environment.NewLine}>");
             var nickname = client.Read();
-            while (_clients.Any(x => x.Nickname == nickname))
+            while (_clients.ContainsKey(nickname))
             {
                 client.Write($"Sorry, the nickname {nickname} is already taken. " +
                     $"Please choose a different one:{Environment.NewLine}>");
@@ -56,7 +61,7 @@ namespace SimpleChat.Server
 
         private void BroadcastMessage(string message)
         {
-            foreach (var client in _clients)
+            foreach (var client in _clients.Values)
             {
                 client.Write(message);
             }
@@ -65,14 +70,14 @@ namespace SimpleChat.Server
         private void SendPrivateMessage(Client from, string message)
         {
             var nickname = message.Split(' ')[1];
-            var to = _clients.FirstOrDefault(x => x.Nickname.Equals(nickname));
-            if (to == null)
+            var clientFound = _clients.TryGetValue(nickname, out var to);
+            if (!clientFound)
             {
                 from.Write($"User {nickname} not found on the chat room.");
             }
             else
             {
-                to.Write($"{from.Nickname} says privately to {to.Nickname} : {message.Split(' ')[1]}");
+                to.Write($"{from.Nickname} says privately to {to.Nickname}: {message.Split(' ')[2]}");
             }
         }
     }
