@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SimpleChat.Commons.Extensions;
+using System;
 using System.Net.Sockets;
 using System.Text;
-using SimpleChat.Commons.Extensions;
 
 namespace SimpleChat.Server
 {

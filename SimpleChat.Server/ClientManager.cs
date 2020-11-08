@@ -40,7 +40,8 @@ namespace SimpleChat.Server
                 if (message.StartsWith("/p") || message.StartsWith("/u")) // Direct message
                 {
                     SendDirectMessage(client, message);
-                } else if (message.StartsWith("/room"))
+                }
+                else if (message.StartsWith("/room"))
                 {
                     ChangeOrCreateRoom(client, message.Split(' ')[1]);
                 }
@@ -48,7 +49,8 @@ namespace SimpleChat.Server
                 {
                     ExitChat(client);
                     break;
-                } else if (message == "/help") // Help message
+                }
+                else if (message == "/help") // Help message
                 {
                     SendHelpMessage(client);
                 }
@@ -99,11 +101,12 @@ namespace SimpleChat.Server
                 var messageContent = message.Substring(
                     message.IndexOf(' ', FIRST_SPACE_INDEX) + 1);
 
-                if(command == "/p")
+                if (command == "/p")
                 {
                     clientTo.Write($"{clientFrom.Nickname} says privately to {clientTo.Nickname}: " +
                         $"{messageContent}");
-                } else
+                }
+                else
                 {
                     BroadcastMessage(clientFrom, $"{clientFrom.Nickname} says to {clientTo.Nickname}: " +
                         $"{messageContent}");
@@ -133,7 +136,8 @@ namespace SimpleChat.Server
             if (_rooms.ContainsKey(roomName))
             {
                 ChangeRoom(client, roomName);
-            } else
+            }
+            else
             {
                 CreateRoom(client, roomName);
             }

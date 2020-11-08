@@ -1,8 +1,8 @@
-﻿using System;
+﻿using SimpleChat.Commons.Extensions;
+using System;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using SimpleChat.Commons.Extensions;
 
 namespace SimpleChat.Client
 {

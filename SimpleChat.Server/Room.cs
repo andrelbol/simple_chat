@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace SimpleChat.Server
 {
@@ -18,7 +16,7 @@ namespace SimpleChat.Server
 
         public void AddClient(Client client)
         {
-            if(client.Room != null)
+            if (client.Room != null)
             {
                 client.Room.RemoveClient(client);
             }
