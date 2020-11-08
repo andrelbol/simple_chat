@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -33,10 +32,11 @@ namespace SimpleChat.Server
                 if (message.StartsWith("/p"))
                 {
                     SendPrivateMessage(client, message);
-                } else if  (message == "exit"){
+                }
+                else if (message == "exit")
+                {
                     client.Write($"{client.Nickname} is exiting the room");
-                    client.Close();
-                    _clients.TryRemove(client.Nickname, out var _);
+                    CloseClient(client);
                     break;
                 }
                 else
@@ -77,8 +77,19 @@ namespace SimpleChat.Server
             }
             else
             {
-                to.Write($"{from.Nickname} says privately to {to.Nickname}: {message.Split(' ')[2]}");
+                const int FIRST_SPACE_INDEX = 3;
+                var messageContent = message.Substring(
+                    message.IndexOf(' ', FIRST_SPACE_INDEX) + 1);
+
+                to.Write($"{from.Nickname} says privately to {to.Nickname}: " +
+                    $"{messageContent}");
             }
+        }
+
+        private void CloseClient(Client client)
+        {
+            client.Close();
+            _clients.TryRemove(client.Nickname, out var _);
         }
     }
 }
