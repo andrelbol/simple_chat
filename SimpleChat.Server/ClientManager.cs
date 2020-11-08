@@ -33,9 +33,9 @@ namespace SimpleChat.Server
             while (true)
             {
                 var message = client.Read();
-                if (message.StartsWith("/p")) // Private message
+                if (message.StartsWith("/p") || message.StartsWith("/u")) // Direct message
                 {
-                    SendPrivateMessage(client, message);
+                    SendDirectMessage(client, message);
                 }
                 else if (message == "/exit") // Exit message
                 {
@@ -75,8 +75,9 @@ namespace SimpleChat.Server
             }
         }
 
-        private void SendPrivateMessage(Client from, string message)
+        private void SendDirectMessage(Client from, string message)
         {
+            var command = message.Split(' ')[0];
             var nickname = message.Split(' ')[1];
             var clientFound = _clients.TryGetValue(nickname, out var to);
             if (!clientFound)
@@ -89,18 +90,26 @@ namespace SimpleChat.Server
                 var messageContent = message.Substring(
                     message.IndexOf(' ', FIRST_SPACE_INDEX) + 1);
 
-                to.Write($"{from.Nickname} says privately to {to.Nickname}: " +
-                    $"{messageContent}");
+                if(command == "/p")
+                {
+                    to.Write($"{from.Nickname} says privately to {to.Nickname}: " +
+                        $"{messageContent}");
+                } else
+                {
+                    BroadcastMessage($"{from.Nickname} says to {to.Nickname}: " +
+                        $"{messageContent}");
+                }
             }
         }
 
         private void SendHelpMessage(Client client)
             => client.Write(Environment.NewLine +
-                "=======================================" + Environment.NewLine +
-                "| Private Message: /p <user> <message> |" + Environment.NewLine +
-                "| Help: /help                          |" + Environment.NewLine +
-                "| Exit: /exit                          |" + Environment.NewLine +
-                "=======================================");
+                "=============================================" + Environment.NewLine +
+                "| Public direct Message: /u <user> <message> |" + Environment.NewLine +
+                "| Private Message: /p <user> <message>       |" + Environment.NewLine +
+                "| Help: /help                                |" + Environment.NewLine +
+                "| Exit: /exit                                |" + Environment.NewLine +
+                "=============================================");
 
         private void CloseClient(Client client)
         {
