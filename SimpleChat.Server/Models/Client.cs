@@ -3,7 +3,7 @@ using System;
 using System.Net.Sockets;
 using System.Text;
 
-namespace SimpleChat.Server
+namespace SimpleChat.Server.Models
 {
     public class Client
     {

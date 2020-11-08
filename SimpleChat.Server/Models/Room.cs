@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace SimpleChat.Server
+namespace SimpleChat.Server.Models
 {
     public class Room
     {

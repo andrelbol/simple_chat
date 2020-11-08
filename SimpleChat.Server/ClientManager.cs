@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SimpleChat.Server.Models;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Net.Sockets;
