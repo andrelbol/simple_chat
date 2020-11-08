@@ -17,11 +17,11 @@ namespace SimpleChat.Client
             _stream = _client.GetStream();
         }
 
-        public void Start()
+        public async void Start()
         {
             var writing = Task.Run(() => StartWriting());
             var reading = Task.Run(() => StartReading());
-            Task.WaitAll(writing, reading);
+            Task.WaitAny(writing, reading);
             _stream.Close();
             _client.Close();
             Console.WriteLine("Connection finished.");

@@ -127,9 +127,9 @@ namespace SimpleChat.Server.Services
 
         private void ExitChat(Client client)
         {
-            client.Write($"{client.Nickname} is exiting the chat");
             client.Close();
             client.Room.RemoveClient(client);
+            BroadcastMessage(client, $"{client.Nickname} is exiting the chat. ");
         }
 
         private void ChangeOrCreateRoom(Client client, string roomName)
