@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -7,11 +8,14 @@ namespace SimpleChat.Server
 {
     public class ClientManager
     {
-        private ConcurrentDictionary<string, Client> _clients;
+        private ConcurrentDictionary<string, Room> _rooms;
+        private Room DefaultRoom;
 
         public ClientManager()
         {
-            _clients = new ConcurrentDictionary<string, Client>();
+            DefaultRoom = new Room("general");
+            _rooms = new ConcurrentDictionary<string, Room>();
+            _rooms.TryAdd(DefaultRoom.Name, DefaultRoom);
         }
 
         public void AddClient(TcpClient tcpClient)
@@ -24,7 +28,7 @@ namespace SimpleChat.Server
         {
             Console.WriteLine("Received connection");
             client.Nickname = RequestUsername(client);
-            _clients.TryAdd(client.Nickname, client);
+            DefaultRoom.AddClient(client);
             StartClientCommunication(client);
         }
 
@@ -36,11 +40,13 @@ namespace SimpleChat.Server
                 if (message.StartsWith("/p") || message.StartsWith("/u")) // Direct message
                 {
                     SendDirectMessage(client, message);
+                } else if (message.StartsWith("/room"))
+                {
+                    ChangeOrCreateRoom(client, message.Split(' ')[1]);
                 }
                 else if (message == "/exit") // Exit message
                 {
-                    client.Write($"{client.Nickname} is exiting the room");
-                    CloseClient(client);
+                    ExitChat(client);
                     break;
                 } else if (message == "/help") // Help message
                 {
@@ -48,7 +54,7 @@ namespace SimpleChat.Server
                 }
                 else // Public message
                 {
-                    BroadcastMessage($"{client.Nickname}: {message}");
+                    BroadcastMessage(client, $"{client.Nickname}: {message}");
                 }
             }
         }
@@ -57,32 +63,35 @@ namespace SimpleChat.Server
         {
             client.Write($"Welcome to our chat server.Please provide a nickname:{Environment.NewLine}>");
             var nickname = client.Read();
-            while (_clients.ContainsKey(nickname))
+            var allClients = _rooms.Values.SelectMany(x => x.Clients.Keys);
+            while (allClients.Contains(nickname))
             {
                 client.Write($"Sorry, the nickname {nickname} is already taken. " +
                     $"Please choose a different one:{Environment.NewLine}>");
                 nickname = client.Read();
             }
-            client.Write($"*** You are registered as {nickname}. Joining room.");
+            client.Write($"*** You are registered as {nickname}. Joining room #{DefaultRoom.Name}.");
             return nickname;
         }
 
-        private void BroadcastMessage(string message)
+        private void BroadcastMessage(Client client, string message)
         {
-            foreach (var client in _clients.Values)
+            var roomClients = client.Room.Clients.Values;
+            foreach (var roomClient in roomClients)
             {
-                client.Write(message);
+                roomClient.Write(message);
             }
         }
 
-        private void SendDirectMessage(Client from, string message)
+        private void SendDirectMessage(Client clientFrom, string message)
         {
             var command = message.Split(' ')[0];
             var nickname = message.Split(' ')[1];
-            var clientFound = _clients.TryGetValue(nickname, out var to);
+            var roomClients = clientFrom.Room.Clients;
+            var clientFound = roomClients.TryGetValue(nickname, out var clientTo);
             if (!clientFound)
             {
-                from.Write($"User {nickname} not found on the chat room.");
+                clientFrom.Write($"User {nickname} not found on room #{clientFrom.Room.Name}.");
             }
             else
             {
@@ -92,11 +101,11 @@ namespace SimpleChat.Server
 
                 if(command == "/p")
                 {
-                    to.Write($"{from.Nickname} says privately to {to.Nickname}: " +
+                    clientTo.Write($"{clientFrom.Nickname} says privately to {clientTo.Nickname}: " +
                         $"{messageContent}");
                 } else
                 {
-                    BroadcastMessage($"{from.Nickname} says to {to.Nickname}: " +
+                    BroadcastMessage(clientFrom, $"{clientFrom.Nickname} says to {clientTo.Nickname}: " +
                         $"{messageContent}");
                 }
             }
@@ -107,14 +116,41 @@ namespace SimpleChat.Server
                 "=============================================" + Environment.NewLine +
                 "| Public direct Message: /u <user> <message> |" + Environment.NewLine +
                 "| Private Message: /p <user> <message>       |" + Environment.NewLine +
+                "| Change room: /room <roomName>              |" + Environment.NewLine +
                 "| Help: /help                                |" + Environment.NewLine +
                 "| Exit: /exit                                |" + Environment.NewLine +
                 "=============================================");
 
-        private void CloseClient(Client client)
+        private void ExitChat(Client client)
         {
+            client.Write($"{client.Nickname} is exiting the chat");
             client.Close();
-            _clients.TryRemove(client.Nickname, out var _);
+            client.Room.RemoveClient(client);
+        }
+
+        private void ChangeOrCreateRoom(Client client, string roomName)
+        {
+            if (_rooms.ContainsKey(roomName))
+            {
+                ChangeRoom(client, roomName);
+            } else
+            {
+                CreateRoom(client, roomName);
+            }
+            client.Write($"You are now on room #{roomName}");
+        }
+
+        private void CreateRoom(Client client, string roomName)
+        {
+            var room = new Room(roomName);
+            room.AddClient(client);
+            _rooms.TryAdd(roomName, room);
+        }
+
+        private void ChangeRoom(Client client, string roomName)
+        {
+            _rooms.TryGetValue(roomName, out var room);
+            room.AddClient(client);
         }
     }
 }

@@ -10,6 +10,7 @@ namespace SimpleChat.Server
         private TcpClient _tcpClient { get; set; }
         private NetworkStream _stream { get; set; }
         public string Nickname { get; set; }
+        public Room Room { get; set; }
 
         public Client(TcpClient tcpClient)
         {
