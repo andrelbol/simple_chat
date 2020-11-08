@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace SimpleChat.Server
+namespace SimpleChat.Server.Services
 {
     public class ClientManager
     {
@@ -42,7 +42,7 @@ namespace SimpleChat.Server
                 {
                     SendDirectMessage(client, message);
                 }
-                else if (message.StartsWith("/room"))
+                else if (message.StartsWith("/room")) // Change room message
                 {
                     ChangeOrCreateRoom(client, message.Split(' ')[1]);
                 }
