@@ -22,29 +22,37 @@ namespace SimpleChat.Server
 
         private void HandleClient(Client client)
         {
-            Console.WriteLine("Client connected.");
+            Console.WriteLine("Received connection");
             client.Nickname = RequestUsername(client);
             _clients.TryAdd(client.Nickname, client);
+            StartClientCommunication(client);
+        }
 
+        private void StartClientCommunication(Client client)
+        {
             while (true)
             {
                 var message = client.Read();
-                if (message.StartsWith("/p"))
+                if (message.StartsWith("/p")) // Private message
                 {
                     SendPrivateMessage(client, message);
                 }
-                else if (message == "/exit")
+                else if (message == "/exit") // Exit message
                 {
                     client.Write($"{client.Nickname} is exiting the room");
                     CloseClient(client);
                     break;
+                } else if (message == "/help") // Help message
+                {
+                    SendHelpMessage(client);
                 }
-                else
+                else // Public message
                 {
                     BroadcastMessage($"{client.Nickname}: {message}");
                 }
             }
         }
+
         private string RequestUsername(Client client)
         {
             client.Write($"Welcome to our chat server.Please provide a nickname:{Environment.NewLine}>");
@@ -85,6 +93,14 @@ namespace SimpleChat.Server
                     $"{messageContent}");
             }
         }
+
+        private void SendHelpMessage(Client client)
+            => client.Write(Environment.NewLine +
+                "=======================================" + Environment.NewLine +
+                "| Private Message: /p <user> <message> |" + Environment.NewLine +
+                "| Help: /help                          |" + Environment.NewLine +
+                "| Exit: /exit                          |" + Environment.NewLine +
+                "=======================================");
 
         private void CloseClient(Client client)
         {
