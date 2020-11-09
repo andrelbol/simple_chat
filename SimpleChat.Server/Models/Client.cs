@@ -10,6 +10,7 @@ namespace SimpleChat.Server.Models
         private TcpClient _tcpClient { get; set; }
         private NetworkStream _stream { get; set; }
         public string Nickname { get; set; }
+        public bool IsClosed { get; set; }
         public Room Room { get; set; }
 
         public Client(TcpClient tcpClient)
@@ -37,6 +38,7 @@ namespace SimpleChat.Server.Models
         {
             _stream.Close();
             _tcpClient.Close();
+            IsClosed = true;
         }
     }
 }
