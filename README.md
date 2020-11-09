@@ -12,7 +12,7 @@ Ele é composto basicamente por 3 componentes principais:
 
 O `SimpleServer` possui um objeto de `ClientManager`, o qual possui uma lista de clientes e uma lista de salas (que começa por padrão com uma sala `#general`). Sempre que uma conexão é recebida, esse cliente é adicionado à lista de clientes do `ClientManager` na sala `#general`.
 
-O `ClientManager` cria _threads_ para cada cliente que se conecta, sabendo como interpretar as mensagens que são recebidas agindo de acordo com o conteúdo das mesmas (método `StartClientCommunication`). As _threads_ criadas ficam aguardando mensagens do cliente ao longo de sua duração até que o cliente saia do chat. Dado que as _threads_ **compartilham as listas** de clientes e salas, optou-se por utilizar listas que fossem _thread safe_ e que permitissem adição e remoção de itens de forma segura (no caso a classe `ConcurrentDictionary`).
+O `ClientManager` cria uma _thread_ para cada cliente que se conecta, sabendo como interpretar as mensagens que são recebidas e agindo de acordo com o conteúdo delas (método `StartClientCommunication`). As _threads_ criadas ficam aguardando mensagens do cliente ao longo de sua duração até que o cliente saia do chat. Dado que as _threads_ **compartilham as listas** de clientes e salas, optou-se por utilizar listas que fossem _thread safe_ e que permitissem adição e remoção de itens de forma segura (no caso a classe `ConcurrentDictionary`).
 
 Todo cliente tem como primeira comunicação a escolha do seu apelido (que não pode se repetir dentre os clientes da aplicação). Depois de escolhido o apelido, o cliente possui as seguintes funcionalidades:
 1. `/u <apelido> <mensagem>`: escreve uma mensagem pública para alguém
