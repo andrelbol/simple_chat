@@ -125,6 +125,7 @@ namespace SimpleChat.Server.Services
                 "=============================================" + Environment.NewLine +
                 "| Public direct Message: /u <user> <message> |" + Environment.NewLine +
                 "| Private Message: /p <user> <message>       |" + Environment.NewLine +
+                "| Public Message: <message>                  |" + Environment.NewLine +
                 "| Change room: /room <roomName>              |" + Environment.NewLine +
                 "| Help: /help                                |" + Environment.NewLine +
                 "| Exit: /exit                                |" + Environment.NewLine +
