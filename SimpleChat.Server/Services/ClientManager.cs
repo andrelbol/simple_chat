@@ -35,30 +35,10 @@ namespace SimpleChat.Server.Services
 
         private void StartClientCommunication(Client client)
         {
-            while (true)
+            while (!client.IsClosed)
             {
                 var message = client.Read();
-                if (message.StartsWith("/p") || message.StartsWith("/u")) // Direct message
-                {
-                    SendDirectMessage(client, message);
-                }
-                else if (message.StartsWith("/room")) // Change room message
-                {
-                    ChangeOrCreateRoom(client, message);
-                }
-                else if (message == "/exit") // Exit message
-                {
-                    ExitChat(client);
-                    break;
-                }
-                else if (message == "/help") // Help message
-                {
-                    SendHelpMessage(client);
-                }
-                else // Public message
-                {
-                    BroadcastMessage(client, $"{client.Nickname}: {message}");
-                }
+                MessageHandler.HandleMessage(message, client, _rooms);
             }
         }
 
@@ -76,101 +56,5 @@ namespace SimpleChat.Server.Services
             client.Write($"*** You are registered as {nickname}. Joining room #{DefaultRoom.Name}.");
             return nickname;
         }
-
-        private void BroadcastMessage(Client client, string message)
-        {
-            var roomClients = client.Room.Clients.Values;
-            foreach (var roomClient in roomClients)
-            {
-                roomClient.Write(message);
-            }
-        }
-
-        private void SendDirectMessage(Client clientFrom, string message)
-        {
-            if (message.Split(' ').Length <= 2)
-            {
-                SendInvalidParametersMessage(clientFrom);
-                return;
-            }
-            var command = message.Split(' ')[0];
-            var nickname = message.Split(' ')[1];
-            var roomClients = clientFrom.Room.Clients;
-            var clientFound = roomClients.TryGetValue(nickname, out var clientTo);
-            if (!clientFound)
-            {
-                clientFrom.Write($"User {nickname} not found on room #{clientFrom.Room.Name}.");
-            }
-            else
-            {
-                const int FIRST_SPACE_INDEX = 3;
-                var messageContent = message.Substring(
-                    message.IndexOf(' ', FIRST_SPACE_INDEX) + 1);
-
-                if (command == "/p")
-                {
-                    clientTo.Write($"{clientFrom.Nickname} says privately to {clientTo.Nickname}: " +
-                        $"{messageContent}");
-                }
-                else
-                {
-                    BroadcastMessage(clientFrom, $"{clientFrom.Nickname} says to {clientTo.Nickname}: " +
-                        $"{messageContent}");
-                }
-            }
-        }
-
-        private void SendHelpMessage(Client client)
-            => client.Write(Environment.NewLine +
-                "=============================================" + Environment.NewLine +
-                "| Public direct Message: /u <user> <message> |" + Environment.NewLine +
-                "| Private Message: /p <user> <message>       |" + Environment.NewLine +
-                "| Public Message: <message>                  |" + Environment.NewLine +
-                "| Change room: /room <roomName>              |" + Environment.NewLine +
-                "| Help: /help                                |" + Environment.NewLine +
-                "| Exit: /exit                                |" + Environment.NewLine +
-                "=============================================");
-
-        private void ExitChat(Client client)
-        {
-            client.Close();
-            client.Room.RemoveClient(client);
-            BroadcastMessage(client, $"{client.Nickname} is exiting the chat. ");
-        }
-
-        private void ChangeOrCreateRoom(Client client, string message)
-        {
-            if (message.Split(' ').Length != 2)
-            {
-                SendInvalidParametersMessage(client);
-                return;
-            }
-            string roomName = message.Split(' ')[1];
-            if (_rooms.ContainsKey(roomName))
-            {
-                ChangeRoom(client, roomName);
-            }
-            else
-            {
-                CreateRoom(client, roomName);
-            }
-            client.Write($"You are now on room #{roomName}");
-        }
-
-        private void CreateRoom(Client client, string roomName)
-        {
-            var room = new Room(roomName);
-            room.AddClient(client);
-            _rooms.TryAdd(roomName, room);
-        }
-
-        private void ChangeRoom(Client client, string roomName)
-        {
-            _rooms.TryGetValue(roomName, out var room);
-            room.AddClient(client);
-        }
-
-        private void SendInvalidParametersMessage(Client client)
-            => client.Write("Invalid number of parameters. Consult /help to see usage.");
     }
 }
