@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SimpleChat.Server.Models
 {
-    public class Client
+    public class Client: IClient
     {
         private TcpClient _tcpClient { get; set; }
         private NetworkStream _stream { get; set; }

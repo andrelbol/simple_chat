@@ -6,7 +6,7 @@ namespace SimpleChat.Server.Services
 {
     public static class MessageHandler
     {
-        public static void HandleMessage(string message, Client client,
+        public static void HandleMessage(string message, IClient client,
             ConcurrentDictionary<string, Room> rooms)
         {
             if (message.StartsWith("/p") || message.StartsWith("/u")) // Direct message
@@ -31,7 +31,7 @@ namespace SimpleChat.Server.Services
             }
         }
 
-        private static void SendDirectMessage(Client clientFrom, string message)
+        private static void SendDirectMessage(IClient clientFrom, string message)
         {
             if (message.Split(' ').Length <= 2)
             {
@@ -65,7 +65,7 @@ namespace SimpleChat.Server.Services
             }
         }
 
-        private static void SendHelpMessage(Client client)
+        private static void SendHelpMessage(IClient client)
             => client.Write(Environment.NewLine +
                 "=============================================" + Environment.NewLine +
                 "| Public direct Message: /u <user> <message> |" + Environment.NewLine +
@@ -76,14 +76,14 @@ namespace SimpleChat.Server.Services
                 "| Exit: /exit                                |" + Environment.NewLine +
                 "=============================================");
 
-        private static void ExitChat(Client client)
+        private static void ExitChat(IClient client)
         {
             client.Close();
             client.Room.RemoveClient(client);
             BroadcastMessage(client, $"{client.Nickname} is exiting the chat. ");
         }
 
-        private static void ChangeOrCreateRoom(Client client, string message,
+        private static void ChangeOrCreateRoom(IClient client, string message,
             ConcurrentDictionary<string, Room> rooms)
         {
             if (message.Split(' ').Length != 2)
@@ -103,7 +103,7 @@ namespace SimpleChat.Server.Services
             client.Write($"You are now on room #{roomName}");
         }
 
-        private static void CreateRoom(Client client, string roomName,
+        private static void CreateRoom(IClient client, string roomName,
             ConcurrentDictionary<string, Room> rooms)
         {
             var room = new Room(roomName);
@@ -111,14 +111,14 @@ namespace SimpleChat.Server.Services
             rooms.TryAdd(roomName, room);
         }
 
-        private static void ChangeRoom(Client client, string roomName,
+        private static void ChangeRoom(IClient client, string roomName,
             ConcurrentDictionary<string, Room> rooms)
         {
             rooms.TryGetValue(roomName, out var room);
             room.AddClient(client);
         }
 
-        private static void BroadcastMessage(Client client, string message)
+        private static void BroadcastMessage(IClient client, string message)
         {
             var roomClients = client.Room.Clients.Values;
             foreach (var roomClient in roomClients)
@@ -127,7 +127,7 @@ namespace SimpleChat.Server.Services
             }
         }
 
-        private static void SendInvalidParametersMessage(Client client)
+        private static void SendInvalidParametersMessage(IClient client)
             => client.Write("Invalid number of parameters. Consult /help to see usage.");
     }
 }
