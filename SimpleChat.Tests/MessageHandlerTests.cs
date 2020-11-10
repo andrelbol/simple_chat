@@ -3,6 +3,7 @@ using SimpleChat.Server.Services;
 using SimpleChat.Tests.Models;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Xunit;
 
 namespace SimpleChat.Tests
@@ -15,8 +16,8 @@ namespace SimpleChat.Tests
         {
             Clients = new Dictionary<int, TestClient>();
             Rooms = new ConcurrentDictionary<string, Room>();
-            var Room1 = new Room("#general1");
-            var Room2 = new Room("#general2");
+            var Room1 = new Room("general1");
+            var Room2 = new Room("general2");
 
             Clients.Add(1, new TestClient("TestUser1"));
             Clients.Add(2, new TestClient("TestUser2"));
@@ -26,8 +27,8 @@ namespace SimpleChat.Tests
             Room1.AddClient(Clients.GetValueOrDefault(2));
             Room2.AddClient(Clients.GetValueOrDefault(3));
 
-            Rooms.TryAdd("#general1", Room1);
-            Rooms.TryAdd("#general1", Room2);
+            Rooms.TryAdd("general1", Room1);
+            Rooms.TryAdd("general2", Room2);
         }
 
 
@@ -89,6 +90,50 @@ namespace SimpleChat.Tests
 
             Assert.Equal($"User {user2.Nickname} not found on room #{user1.Room.Name}.",
                 user1.WrittenMessage);
+        }
+
+        [Theory]
+        [InlineData("general3")]
+        [InlineData("simple_room")]
+        [InlineData("testRoom")]
+        public void HandleMessage_ShouldCreateRoom(string roomName)
+        {
+            var user = Clients.GetValueOrDefault(1);
+            string command = $"/room {roomName}";
+
+            MessageHandler.HandleMessage(command, user, Rooms);
+            Rooms.TryGetValue(roomName, out var createdRoom);
+
+            Assert.Equal(roomName, createdRoom.Name);
+        }
+
+        [Fact]
+        public void HandleMessage_ShouldNotCreateRoom()
+        {
+            var inititalRoomCount = Rooms.Count;
+            var user = Clients.GetValueOrDefault(1);
+            var roomName = "general2";
+            string command = $"/room {roomName}";
+
+            MessageHandler.HandleMessage(command, user, Rooms);
+            var finalRoomCount = Rooms.Count;
+
+            Assert.Equal(inititalRoomCount, finalRoomCount);
+        }
+
+        [Theory]
+        [InlineData("general3")]
+        [InlineData("simple_room")]
+        [InlineData("testRoom")]
+        public void HandleMessage_ShouldChangeRoom(string roomName)
+        {
+            var inititalRoomCount = Rooms.Count;
+            var user = Clients.GetValueOrDefault(1);
+            string command = $"/room {roomName}";
+
+            MessageHandler.HandleMessage(command, user, Rooms);
+
+            Assert.Equal(roomName, user.Room.Name);
         }
     }
 }
