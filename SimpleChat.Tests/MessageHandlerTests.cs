@@ -3,7 +3,6 @@ using SimpleChat.Server.Services;
 using SimpleChat.Tests.Models;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Xunit;
 
 namespace SimpleChat.Tests
@@ -22,7 +21,7 @@ namespace SimpleChat.Tests
             Clients.Add(1, new TestClient("TestUser1"));
             Clients.Add(2, new TestClient("TestUser2"));
             Clients.Add(3, new TestClient("TestUser3"));
-            
+
             Room1.AddClient(Clients.GetValueOrDefault(1));
             Room1.AddClient(Clients.GetValueOrDefault(2));
             Room2.AddClient(Clients.GetValueOrDefault(3));
@@ -58,7 +57,7 @@ namespace SimpleChat.Tests
 
             MessageHandler.HandleMessage(command, user1, Rooms);
 
-            Assert.Equal($"User {user2.Nickname} not found on room #{user1.Room.Name}.", 
+            Assert.Equal($"User {user2.Nickname} not found on room #{user1.Room.Name}.",
                 user1.WrittenMessage);
         }
 
