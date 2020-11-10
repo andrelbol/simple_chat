@@ -60,5 +60,35 @@ namespace SimpleChat.Tests
             Assert.Equal($"User {user2.Nickname} not found on room #{user1.Room.Name}.", 
                 user1.WrittenMessage);
         }
+
+        [Theory]
+        [InlineData("TestUser1 says to TestUser2: Hello", 1, 2)]
+        [InlineData("TestUser2 says to TestUser1: Hello", 2, 1)]
+        public void HandleMessage_ShouldSendPublicMessage(string expected,
+            int former, int latter)
+        {
+            var user1 = Clients.GetValueOrDefault(former);
+            var user2 = Clients.GetValueOrDefault(latter);
+            var message = "Hello";
+            string command = $"/u {user2.Nickname} {message}";
+
+            MessageHandler.HandleMessage(command, user1, Rooms);
+
+            Assert.Equal(expected, user2.WrittenMessage);
+        }
+
+        [Fact]
+        public void HandleMessage_ShouldNotSendPublicMessageToOtherRoom()
+        {
+            var user1 = Clients.GetValueOrDefault(1);
+            var user2 = Clients.GetValueOrDefault(3);
+            var message = "Hello";
+            string command = $"/u {user2.Nickname} {message}";
+
+            MessageHandler.HandleMessage(command, user1, Rooms);
+
+            Assert.Equal($"User {user2.Nickname} not found on room #{user1.Room.Name}.",
+                user1.WrittenMessage);
+        }
     }
 }
