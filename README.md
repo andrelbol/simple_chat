@@ -1,5 +1,5 @@
 # Simple Chat
-O Simple Chat é uma aplicação de chat que utiliza comunicação TCP para conectar os usuários. Ela é formada principalmente por um servidor TCP, o qual é capaz de receber conexões dos clientes TCP (também existentes nesse repositório) permitindo que eles enviem mensagens uns para os outros.
+O Simple Chat é uma aplicação de chat que utiliza comunicação TCP para conectar os usuários. Ela é formada principalmente por um servidor TCP capaz de receber conexões dos clientes TCP (também existentes nesse repositório) permitindo que eles enviem mensagens uns para os outros.
 
 ## Simple Server
 Servidor da aplicação, é uma `ConsoleApplication` capaz de receber conexões TCP e "conectar" os clientes a outros já conectados. O código do `Simple Server` pode ser encontrado dentro da pasta `Server` na pasta _root_ da solução. Por padrão foi fixado o _host_ `127.0.0.1` e a porta `20000` por essa ser uma aplicação sem fins definidos.
@@ -7,7 +7,7 @@ Servidor da aplicação, é uma `ConsoleApplication` capaz de receber conexões 
 Ele é composto basicamente por 3 componentes principais:
 
 1. `Program.cs`: ponto de entrada da `ConsoleApplication`
-1. `SimpleServer`: contém o servidor TCP que recebe as conexões dos clientes e encaminha os mesmos para processamento
+1. `SimpleServer`: contém o servidor TCP que recebe as conexões dos clientes e os encaminha para processamento
 1. `ClientManager`: serviço responsável por lidar com as conexões dos clientes, lendo e escrevendo mensagens para eles de acordo com a funcionalidade da aplicação
 
 O `SimpleServer` possui um objeto de `ClientManager`, o qual possui uma lista de clientes e uma lista de salas (que começa por padrão com uma sala `#general`). Sempre que uma conexão é recebida, esse cliente é adicionado à lista de clientes do `ClientManager` na sala `#general`.
@@ -17,20 +17,20 @@ O `ClientManager` cria uma _thread_ para cada cliente que se conecta, sabendo co
 Todo cliente tem como primeira comunicação a escolha do seu apelido (que não pode se repetir dentre os clientes da aplicação). Depois de escolhido o apelido, o cliente possui as seguintes funcionalidades:
 1. `/u <apelido> <mensagem>`: escreve uma mensagem pública para alguém
 1. `/p <apelido> <mensagem>`: escreve uma mensagem privada para alguém
-1. `/room`: troca de sala (se a sala não existe, cria uma nova sala)
+1. `/room <nome_da_sala>`: troca de sala (se a sala não existe, cria uma nova sala)
 1. `/exit`: sai do chat
 1. `/help`: lista as opções de comandos para o usuário
 1. `<mensagem>`: escreve uma mensagem pública para todos os usuários da sala
 
 As mensagens que possuem comandos (`/p`, `/u` entre outras) possuem número de argumentos fixo. Essa verificação é realizada no momento em que a mensagem vai ser processada. Para cada um dos tipos de mensagem foram criados testes unitários encontrados na pasta `Tests` na pasta _root_ da solução.
 
-A comunicação com o cliente é feita através da classe `Client`, a qual representa um cliente e possui métodos para **receber uma mensagem do cliente** e para **escrever uma mensagem para o cliente**. É nessa classe também que se armazena o **apelido** do usuário conectado e **a sala** em que ele se encontra no momento.
+A comunicação com o cliente é feita através da classe `Client` que representa um cliente e possui métodos para **receber uma mensagem do cliente** e para **escrever uma mensagem para o cliente**. É nessa classe também que se armazena o **apelido** do usuário conectado e **a sala** em que ele se encontra no momento.
 
 Além de dentro do objeto `Client`, o `ClientManager` também guarda a lista de salas existentes no chat no momento. Cada sala (da class `Room`) tem conhecimento de quais clientes estão presentes nela. É a partir desse controle por exemplo que é possível saber **para quem as mensagens públicas devem ser enviadas**. A classe `Room` também tém o conhecimento de como **adicionar um usuário** à sala, impedindo por exemplo que um cliente esteja em mais de uma sala ao mesmo tempo.
 
 ## Simple Client
 
-Servidor da aplicação, é uma `ConsoleApplication` capaz de realizar conexões TCP com o servidor. Por padrão foi fixado o _host_ `127.0.0.1` e a porta `20000` por essa ser uma aplicação sem fins definidos. O `SimpleClient` é composto basicamente de 2 componentes:
+Cliente da aplicação, é uma `ConsoleApplication` capaz de realizar conexões TCP com o servidor. Por padrão foi fixado o _host_ `127.0.0.1` e a porta `20000` por essa ser uma aplicação sem fins definidos. O `SimpleClient` é composto basicamente de 2 componentes:
 
 1. `Program.cs`: ponto de partida da `ConsoleApplication`
 1. `SimpleClient.cs`: cliente da aplicação capaz de comunicar com o `SimpleServer`
@@ -45,4 +45,4 @@ Assim que a conexão com o servidor é finalizada (por meio do comando `/exit` o
 
 ## Interface `IClient`
 
-Acredito ser relevante explicar a necessidade da `interface IClient`. Para construir os testes unitários, era necessário isolar a lógica da comunicação TCP. Para isso, foi criada essa interface, a qual possui uma implementação para a aplicação (`Client`) e uma implementação para os testes (`TestClient`). A diferença da `TestClient` é que, no lugar de escrever mensagens em um _stream_ TCP, as escritas desse cliente somente preenchem uma propriedade `WrittenMessage`, a qual é utilizar para verificar se as mensagens são corretamente interpretadas.
+Acredito ser relevante explicar a necessidade da `interface IClient`. Para construir os testes unitários, era necessário isolar a lógica da comunicação TCP. Para isso, foi criada essa interface que possui uma implementação para a aplicação (`Client`) e uma implementação para os testes (`TestClient`). A diferença da `TestClient` é que, no lugar de escrever mensagens em um _stream_ TCP, as escritas desse cliente somente preenchem uma propriedade `WrittenMessage` que é utilizar para verificar se as mensagens são corretamente interpretadas.
