@@ -43,6 +43,20 @@ Durante a implementação do projeto optou-se por deixar a lógica em sua maior 
 
 Assim que a conexão com o servidor é finalizada (por meio do comando `/exit` onde o servidor fecha a conexão com o cliente), a aplicação fecha a conexão com o servidor por parte do cliente e finaliza o processo.
 
-## Interface `IClient`
+### Interface `IClient`
 
 Acredito ser relevante explicar a necessidade da `interface IClient`. Para construir os testes unitários, era necessário isolar a lógica da comunicação TCP. Para isso, foi criada essa interface que possui uma implementação para a aplicação (`Client`) e uma implementação para os testes (`TestClient`). A diferença da `TestClient` é que, no lugar de escrever mensagens em um _stream_ TCP, as escritas desse cliente somente preenchem uma propriedade `WrittenMessage` que é utilizar para verificar se as mensagens são corretamente interpretadas.
+
+## Compilação e execução
+
+Existem 2 caminhos para se compilar e executar a aplicação. O primeiro deles é por meio da **IDE Visual Studio**, cuja versão _community_ pode ser baixada **gratuitamente**. Por meio dessa IDE é possível abrir a solução que se encontra no repositório (SimpleChat.sln). Tendo a solução aberta, basta **construir** a aplicação e **executar** normalmente. É importante ressaltar que **na solução** se encontra **tanto a aplicação servidor** (SimpleChat.Server) **quanto a aplicação cliente** (SimpleChat.Client), assim será necessário **escolher qual executar** caso opte pela IDE (menos recomendado).
+
+O segundo caminho é por meio da **ferramenta de linha de comando dotnet**, a qual pode ser obtida baixando gratuitamente o **SDK do .NET Core** (disponível para múltiplas plataformas). Depois de baixar o SDK, para executar a aplicação é necessário primeiramente **publicá-la**. Para isso, utilizando um terminal:
+
+* navegue até a pasta raiz do repositório na máquina
+* execute o comando `dotnet publish -p "caminho/para/pasta/de/saida"`
+
+Após executar esse comando, na pasta de saída escolhida poderá ser encontrado uma série de arquivos. Dentre esses a **aplicação servidor** é a **SimpleChat.Server.exe** e a **aplicação cliente** é a **SimpleChat.Client.exe**. Essa forma de publicação serve somente para sistemas **Windows**. Caso deseje publicar para outros sistemas operacionais é necessário consultar a documentação do comando `dotnet publish`.
+
+### Instruções de Execução
+Para utilizar o SimpleChat, **primeiramente** é necessário executar o **servidor**. Assim que esse estiver de pé, pode-se executar **um ou mais clientes** (eles se conectaram imediatamente ao servidor através da porta 20000 da sua máquina local). Assim que o cliente se conectar, será requisitado o apelido daquele cliente, e daí em diante ele já estará conectado no chat (mais informações de utilização por meio do comando `/help` no cliente).
