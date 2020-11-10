@@ -135,5 +135,19 @@ namespace SimpleChat.Tests
 
             Assert.Equal(roomName, user.Room.Name);
         }
+
+        [Theory]
+        [InlineData("/p foo")]
+        [InlineData("/u bar")]
+        [InlineData("/room")]
+        public void HandleMessage_ShoudVerifyIncorrectParameters(string message)
+        {
+            var user = Clients.GetValueOrDefault(1);
+            var exceptionMessage = "Invalid number of parameters. Consult /help to see usage.";
+
+            MessageHandler.HandleMessage(message, user, Rooms);
+
+            Assert.Equal(exceptionMessage, user.WrittenMessage);
+        }
     }
 }
