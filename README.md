@@ -12,7 +12,7 @@ Ele é composto basicamente por 3 componentes principais:
 
 O `SimpleServer` possui um objeto de `ClientManager`, o qual possui uma lista de clientes e uma lista de salas (que começa por padrão com uma sala `#general`). Sempre que uma conexão é recebida, esse cliente é adicionado à lista de clientes do `ClientManager` na sala `#general`.
 
-O `ClientManager` cria uma _thread_ para cada cliente que se conecta, sabendo como interpretar as mensagens que são recebidas e agindo de acordo com o conteúdo delas (método `StartClientCommunication`). As _threads_ criadas ficam aguardando mensagens do cliente ao longo de sua duração até que o cliente saia do chat. Dado que as _threads_ **compartilham as listas** de clientes e salas, optou-se por utilizar listas que fossem _thread safe_ e que permitissem adição e remoção de itens de forma segura (no caso a classe `ConcurrentDictionary`).
+O `ClientManager` cria uma _thread_ para cada cliente que se conecta, sabendo como interpretar as mensagens que são recebidas e agindo de acordo com o conteúdo delas (classe estática `MessageHandler`). As _threads_ criadas ficam aguardando mensagens do cliente ao longo de sua duração até que o cliente saia do chat. Dado que as _threads_ **compartilham as listas** de clientes e salas, optou-se por utilizar listas que fossem _thread safe_ e que permitissem adição e remoção de itens de forma segura (no caso a classe `ConcurrentDictionary`).
 
 Todo cliente tem como primeira comunicação a escolha do seu apelido (que não pode se repetir dentre os clientes da aplicação). Depois de escolhido o apelido, o cliente possui as seguintes funcionalidades:
 1. `/u <apelido> <mensagem>`: escreve uma mensagem pública para alguém
@@ -22,7 +22,7 @@ Todo cliente tem como primeira comunicação a escolha do seu apelido (que não 
 1. `/help`: lista as opções de comandos para o usuário
 1. `<mensagem>`: escreve uma mensagem pública para todos os usuários da sala
 
-As mensagens que possuem comandos (`/p`, `/u` entre outras) possuem número de argumentos fixo. Essa verificação é realizada no momento em que a mensagem vai ser processada.
+As mensagens que possuem comandos (`/p`, `/u` entre outras) possuem número de argumentos fixo. Essa verificação é realizada no momento em que a mensagem vai ser processada. Para cada um dos tipos de mensagem foram criados testes unitários encontrados na pasta `Tests` na pasta _root_ da solução.
 
 A comunicação com o cliente é feita através da classe `Client`, a qual representa um cliente e possui métodos para **receber uma mensagem do cliente** e para **escrever uma mensagem para o cliente**. É nessa classe também que se armazena o **apelido** do usuário conectado e **a sala** em que ele se encontra no momento.
 
@@ -42,3 +42,7 @@ Durante a implementação do projeto optou-se por deixar a lógica em sua maior 
 1. Cria uma _thread_ para receber mensagens do servidor que são mostradas no console
 
 Assim que a conexão com o servidor é finalizada (por meio do comando `/exit` onde o servidor fecha a conexão com o cliente), a aplicação fecha a conexão com o servidor por parte do cliente e finaliza o processo.
+
+## Interface `IClient`
+
+Acredito ser relevante explicar a necessidade da `interface IClient`. Para construir os testes unitários, era necessário isolar a lógica da comunicação TCP. Para isso, foi criada essa interface, a qual possui uma implementação para a aplicação (`Client`) e uma implementação para os testes (`TestClient`). A diferença da `TestClient` é que, no lugar de escrever mensagens em um _stream_ TCP, as escritas desse cliente somente preenchem uma propriedade `WrittenMessage`, a qual é utilizar para verificar se as mensagens são corretamente interpretadas.
